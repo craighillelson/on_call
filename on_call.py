@@ -35,6 +35,14 @@ def import_list_of_employees():
     return dct, lst
 
 
+def make_list_of_shifts():
+    """
+    For the range between the user specified start and end dates, build a
+    list of start dates. Loop through shifts and flag any weeks containing US
+    holidays.
+    """
+
+
 def prompt_user_for_start_date():
     """
     Prompt user for a start date. Check to make sure the start date is in
@@ -65,14 +73,14 @@ def build_list_of_mondays(start):
 
 
 def get_list_of_teams():
-    lst = []
+    # lst1 = []
     lst2 = []
 
     for team, employee in employees.items():
-        lst = []
+        lst1 = []
         for email in employee:
-            lst.append(email)
-        lst2.append(lst)
+            lst1.append(email)
+        lst2.append(lst1)
 
     return lst2
 
@@ -112,6 +120,19 @@ def build_list_of_schedules():
     return lst
 
 
+def write_schedule_to_csv(file_name):
+    """Write dictionary to csv."""
+
+    with open(file_name, "w") as out_file:
+        out_csv = csv.writer(out_file)
+        out_csv.writerow(["date","assignees"])
+        for mon, assignees in finalized_schedule.items():
+            keys_values = (mon, *assignees)
+            out_csv.writerow(keys_values)
+
+    print(f'"{file_name}" exported successfully')
+
+
 start_date = prompt_user_for_start_date()
 mondays = build_list_of_mondays(start_date)
 employees, teams = import_list_of_employees()
@@ -119,3 +140,4 @@ teams = get_list_of_teams()
 schedules = build_list_of_schedules()
 finalized_schedule = assemble_schedule()
 output_schedule()
+write_schedule_to_csv("schedule.csv")
