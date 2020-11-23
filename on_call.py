@@ -7,7 +7,7 @@ from itertools import cycle
 import csv
 import pyinputplus as pyip
 from dateutil.relativedelta import relativedelta
-from dateutil.rrule import MO
+from dateutil.rrule import MO, SU
 
 
 def import_list_of_employees():
@@ -17,7 +17,7 @@ def import_list_of_employees():
     emloyee,team.
     The resulting dictionary should be structured as follows.
     key - team
-    employees - list of employee email addresses
+    values - list of employee email addresses
     """
 
     dct = defaultdict(list)
@@ -33,14 +33,6 @@ def import_list_of_employees():
     lst = list(dct.keys())
 
     return dct, lst
-
-
-def make_list_of_shifts():
-    """
-    For the range between the user specified start and end dates, build a
-    list of start dates. Loop through shifts and flag any weeks containing US
-    holidays.
-    """
 
 
 def prompt_user_for_start_date():
@@ -62,21 +54,21 @@ def prompt_user_for_start_date():
     return start
 
 
-def build_list_of_mondays(start):
+def build_list_of_shifts(start):
     i = 1
     lst = []
     for monday in range(12):
         monday = start + relativedelta(weekday=MO(+i))
-        lst.append(monday)
+        sunday = start + relativedelta(weekday=SU(+i + 1))
+        lst.append(str(monday) + " - " + str(sunday))
         i += 1
     return lst
 
 
 def get_list_of_teams():
-    # lst1 = []
     lst2 = []
 
-    for team, employee in employees.items():
+    for employee in employees.values():
         lst1 = []
         for email in employee:
             lst1.append(email)
@@ -125,7 +117,7 @@ def write_schedule_to_csv(file_name):
 
     with open(file_name, "w") as out_file:
         out_csv = csv.writer(out_file)
-        out_csv.writerow(["date","assignees"])
+        out_csv.writerow(["shift","assignees"])
         for mon, assignees in finalized_schedule.items():
             keys_values = (mon, *assignees)
             out_csv.writerow(keys_values)
@@ -134,7 +126,7 @@ def write_schedule_to_csv(file_name):
 
 
 start_date = prompt_user_for_start_date()
-mondays = build_list_of_mondays(start_date)
+mondays = build_list_of_shifts(start_date)
 employees, teams = import_list_of_employees()
 teams = get_list_of_teams()
 schedules = build_list_of_schedules()
