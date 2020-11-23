@@ -19,7 +19,6 @@ stanley@dundermifflin.com|2
 oscar@dundermifflin.com|2
 angela@dundermifflin.com|2
 toby@dundermifflin.com|2
-
 1. Navigate to the proper directory and in Terminal, type "python3 on_call.py"
 
 
