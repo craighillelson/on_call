@@ -7,7 +7,7 @@ script for building an on call schedule
 
 # Instructions
 1. Download on_call.py.
-1. Upload a csv of employee email addresses and their associated team number to the same directory you saved "on_call.py" to. Associating a team number with an employee is done to create depth or failover for each on call shift. An example csv follows.
+1. Save a csv named "employees.csv" that includes employee email addresses and their associated team number to the same directory you saved "on_call.py" to. Associating a team number with an employee is done to create depth or failover for each on call shift. An example csv follows.
 
 employee|team
 --------|----
