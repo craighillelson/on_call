@@ -35,14 +35,6 @@ def import_list_of_employees():
     return dct, lst
 
 
-def make_list_of_shifts():
-    """
-    For the range between the user specified start and end dates, build a
-    list of start dates. Loop through shifts and flag any weeks containing US
-    holidays.
-    """
-
-
 def prompt_user_for_start_date():
     """
     Prompt user for a start date. Check to make sure the start date is in
