@@ -91,8 +91,9 @@ def assemble_schedule():
 
 def output_schedule():
     print("\nfinalized schedule")
-    for mon, assignments in finalized_schedule.items():
-        print(mon, *assignments, sep=", ")
+    print("shift, asssignees")
+    for shift, assignments in finalized_schedule.items():
+        print(shift, *assignments, sep=", ")
     print("\n")
 
 
@@ -122,7 +123,7 @@ def write_schedule_to_csv(file_name):
             keys_values = (mon, *assignees)
             out_csv.writerow(keys_values)
 
-    print(f'"{file_name}" exported successfully')
+    print(f'"{file_name}" exported successfully\n')
 
 
 start_date = prompt_user_for_start_date()
