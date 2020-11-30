@@ -10,6 +10,41 @@ from dateutil.relativedelta import relativedelta
 from dateutil.rrule import MO, SU
 
 
+def prompt_user_for_start_date():
+    """
+    Prompt user for a start date. Check to make sure the start date is in
+    the future.
+    """
+
+    today = date.today()
+
+    start = pyip.inputDate("\nPlease enter a start date (YYYY-MM-DD).\n> ",
+                           formats=["%Y-%m-%d"])
+    while True:
+        if today > start:
+            start = pyip.inputDate("\nPlease enter a date in the future.\n> ",
+                                   formats=["%Y-%m-%d"])
+        else:
+            break
+    return start
+
+
+def build_list_of_shifts(start):
+    """
+    Starting with the Monday following the start date specified by the user,
+    build a list of twelve on-call shifts that run Monday to Sunday.
+    """
+
+    i = 1
+    lst = []
+    for monday in range(12):
+        monday = start + relativedelta(weekday=MO(+i))
+        sunday = start + relativedelta(weekday=SU(+i + 1))
+        lst.append(str(monday) + " - " + str(sunday))
+        i += 1
+    return lst
+
+
 def import_list_of_employees():
     """
     Import employees from a csv and make a dictionaries by teams. The csv's
@@ -35,82 +70,59 @@ def import_list_of_employees():
     return dct, lst
 
 
-def prompt_user_for_start_date():
-    """
-    Prompt user for a start date. Check to make sure the start date is in
-    the future.
-    """
+def get_team_rosters():
+    """Make lists of each team's rosters."""
 
-    today = date.today()
-
-    start = pyip.inputDate("\nPlease enter a start date (YYYY-MM-DD).\n> ",
-                           formats=["%Y-%m-%d"])
-    while True:
-        if today > start:
-            start = pyip.inputDate("\nPlease enter a date in the future.\n> ",
-                                   formats=["%Y-%m-%d"])
-        else:
-            break
-    return start
-
-
-def build_list_of_shifts(start):
-    i = 1
     lst = []
-    for monday in range(12):
-        monday = start + relativedelta(weekday=MO(+i))
-        sunday = start + relativedelta(weekday=SU(+i + 1))
-        lst.append(str(monday) + " - " + str(sunday))
+    for email in employees.values():
+        lst.append(email)
+    return lst
+
+
+def build_list_of_schedules():
+    """Loop through the list of rosters and populate a list of schedules."""
+
+    i = 0
+    lst = []
+    for i in range(len(rosters)):
+        lst.append(build_schedule(i))
         i += 1
     return lst
 
 
-def get_list_of_teams():
-    lst2 = []
+def build_schedule(an_int):
+    """
+    Looping through shifts and cycling through employees for each team roster,
+    assigning each shift to one team member.
+    """
 
-    for employee in employees.values():
-        lst1 = []
-        for email in employee:
-            lst1.append(email)
-        lst2.append(lst1)
-
-    return lst2
-
-
-def prompt_user_for_date(user_prompt, formats=['%Y-%m-%d']):
-    return pyip.inputDate(user_prompt)
-
-
-def assemble_schedule():
-    dct = defaultdict(list)
-    for i in schedules:
-        for mon, assignments in i.items():
-            dct[mon].append(assignments)
+    dct = {}
+    for shift, email in zip(shifts, cycle(rosters[an_int])):
+        dct[str(shift)] = email
     return dct
 
 
+def group_schedules_by_shift():
+    """
+    Using defaultdict, create a dictionary, making shifts the keys lists
+    of assignees the values.
+    """
+
+    dct1 = defaultdict(list)
+    for dct2 in schedules:
+        for mon, assignments in dct2.items():
+            dct1[mon].append(assignments)
+    return dct1
+
+
 def output_schedule():
+    """Output the schedule to the screen."""
+
     print("\nfinalized schedule")
     print("shift, asssignees")
     for shift, assignments in finalized_schedule.items():
         print(shift, *assignments, sep=", ")
     print("\n")
-
-
-def build_schedule(an_int):
-    dct = {}
-    for mon, email in zip(mondays, cycle(teams[an_int])):
-        dct[str(mon)] = email
-    return dct
-
-
-def build_list_of_schedules():
-    i = 0
-    lst = []
-    for i in range(len(teams)):
-        lst.append(build_schedule(i))
-        i += 1
-    return lst
 
 
 def write_schedule_to_csv(file_name):
@@ -127,10 +139,10 @@ def write_schedule_to_csv(file_name):
 
 
 start_date = prompt_user_for_start_date()
-mondays = build_list_of_shifts(start_date)
+shifts = build_list_of_shifts(start_date)
 employees, teams = import_list_of_employees()
-teams = get_list_of_teams()
+rosters = get_team_rosters()
 schedules = build_list_of_schedules()
-finalized_schedule = assemble_schedule()
+finalized_schedule = group_schedules_by_shift()
 output_schedule()
 write_schedule_to_csv("schedule.csv")
